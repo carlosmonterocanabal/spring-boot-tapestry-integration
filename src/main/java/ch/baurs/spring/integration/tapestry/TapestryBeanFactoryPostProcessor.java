@@ -1,10 +1,11 @@
 package ch.baurs.spring.integration.tapestry;
 
 import org.apache.tapestry5.SymbolConstants;
+import org.apache.tapestry5.http.internal.SingleKeySymbolProvider;
+import org.apache.tapestry5.http.internal.TapestryAppInitializer;
+import org.apache.tapestry5.http.internal.TapestryHttpInternalConstants;
+import org.apache.tapestry5.http.internal.util.DelegatingSymbolProvider;
 import org.apache.tapestry5.internal.InternalConstants;
-import org.apache.tapestry5.internal.SingleKeySymbolProvider;
-import org.apache.tapestry5.internal.TapestryAppInitializer;
-import org.apache.tapestry5.internal.util.DelegatingSymbolProvider;
 import org.apache.tapestry5.ioc.Registry;
 import org.apache.tapestry5.ioc.services.ServiceActivityScoreboard;
 import org.apache.tapestry5.ioc.services.SymbolProvider;
@@ -57,7 +58,7 @@ public class TapestryBeanFactoryPostProcessor implements BeanFactoryPostProcesso
         beanFactory.addBeanPostProcessor(new TapestryFilterPostProcessor());
 
         registerTapestryServices(applicationContext.getBeanFactory(),
-                combinedProvider.valueForSymbol(InternalConstants.TAPESTRY_APP_PACKAGE_PARAM) + ".services",
+                combinedProvider.valueForSymbol(TapestryHttpInternalConstants.TAPESTRY_APP_PACKAGE_PARAM) + ".services",
                 registry);
 
         // This will scan and find TapestryFilter which in turn will be post
@@ -102,14 +103,14 @@ public class TapestryBeanFactoryPostProcessor implements BeanFactoryPostProcesso
         tapestryContext.put(SymbolConstants.EXECUTION_MODE, executionMode);
 
         String rootPackageName = appModuleClass.substring(0, appModuleClass.lastIndexOf('.')).replace(".services", "");
-        tapestryContext.put(InternalConstants.TAPESTRY_APP_PACKAGE_PARAM, rootPackageName);
+        tapestryContext.put(TapestryHttpInternalConstants.TAPESTRY_APP_PACKAGE_PARAM, rootPackageName);
 
         environment.getPropertySources().addFirst(new MapPropertySource("tapestry-context", tapestryContext));
 
         return new DelegatingSymbolProvider(
                 new ApplicationContextSymbolProvider(applicationContext),
                 new SingleKeySymbolProvider(SymbolConstants.CONTEXT_PATH, servletContextPath),
-                new SingleKeySymbolProvider(InternalConstants.TAPESTRY_APP_PACKAGE_PARAM, rootPackageName),
+                new SingleKeySymbolProvider(TapestryHttpInternalConstants.TAPESTRY_APP_PACKAGE_PARAM, rootPackageName),
                 new SingleKeySymbolProvider(SymbolConstants.EXECUTION_MODE, executionMode)
         );
     }

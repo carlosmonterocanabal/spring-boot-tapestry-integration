@@ -1,12 +1,19 @@
 package ch.baurs.spring.integration.tapestry;
 
-import org.apache.tapestry5.internal.AbstractContributionDef;
-import org.apache.tapestry5.ioc.*;
+import org.apache.tapestry5.annotations.Service;
+import org.apache.tapestry5.commons.AnnotationProvider;
+import org.apache.tapestry5.commons.ObjectLocator;
+import org.apache.tapestry5.commons.ObjectProvider;
+import org.apache.tapestry5.commons.OrderedConfiguration;
+import org.apache.tapestry5.commons.util.CollectionFactory;
+import org.apache.tapestry5.http.internal.AbstractContributionDef;
+import org.apache.tapestry5.ioc.ModuleBuilderSource;
+import org.apache.tapestry5.ioc.OperationTracker;
+import org.apache.tapestry5.ioc.ServiceResources;
 import org.apache.tapestry5.ioc.def.ContributionDef;
 import org.apache.tapestry5.ioc.def.DecoratorDef;
 import org.apache.tapestry5.ioc.def.ModuleDef;
 import org.apache.tapestry5.ioc.def.ServiceDef;
-import org.apache.tapestry5.ioc.internal.util.CollectionFactory;
 import org.apache.tapestry5.ioc.internal.util.InternalUtils;
 import org.apache.tapestry5.plastic.PlasticUtils;
 import org.springframework.context.ApplicationContext;
@@ -14,6 +21,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A wrapper that converts a Spring {@link ApplicationContext} into a set of service definitions,
@@ -71,8 +79,15 @@ public class SpringModuleDef implements ModuleDef {
                     @Override
                     public <T> T provide(Class<T> objectType, AnnotationProvider annotationProvider, ObjectLocator locator) {
 
-                        Map beanMap = applicationContext.getBeansOfType(objectType);
+                        Map<String, T> beanMap = applicationContext.getBeansOfType(objectType);
 
+                        Service serviceAnnotation = annotationProvider.getAnnotation(Service.class);
+                        if (serviceAnnotation != null) {
+                        	beanMap = beanMap.entrySet().stream()
+                                    .filter(entry -> entry.getKey().equals(serviceAnnotation.value()))
+                                    .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                        }
+                        
                         switch (beanMap.size()) {
                             case 0:
                                 return null;

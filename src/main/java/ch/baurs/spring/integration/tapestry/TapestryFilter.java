@@ -1,8 +1,8 @@
 package ch.baurs.spring.integration.tapestry;
 
+import org.apache.tapestry5.http.services.HttpServletRequestHandler;
+import org.apache.tapestry5.http.services.ServletApplicationInitializer;
 import org.apache.tapestry5.ioc.Registry;
-import org.apache.tapestry5.services.HttpServletRequestHandler;
-import org.apache.tapestry5.services.ServletApplicationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import java.io.IOException;
  */
 @Component
 public class TapestryFilter extends FilterRegistrationBean implements Filter {
+
     private final Logger logger = LoggerFactory.getLogger(TapestryFilter.class);
 
     private FilterConfig config;
