@@ -1,13 +1,21 @@
 package ch.baurs.spring.integration.tapestry.itgtest;
 
-import ch.baurs.spring.integration.tapestry.itgtest.services.TestService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.tapestry5.services.RequestGlobals;
+import org.apache.tapestry5.http.services.RequestGlobals;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,18 +23,13 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.servlet.ViewResolver;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-
-import static org.junit.Assert.*;
+import ch.baurs.spring.integration.tapestry.itgtest.services.TestService;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestBootApplication.class)
 public class DemoApplicationTest {
 
@@ -106,13 +109,9 @@ public class DemoApplicationTest {
         System.out.println("\nSending 'GET' request to URL : " + url);
         System.out.println("Response Code : " + responseCode);
 
-        InputStream inputStream = con.getInputStream();
-        try {
+        try (InputStream inputStream = con.getInputStream()){
             return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
         }
-
     }
 
 }
